@@ -1,0 +1,318 @@
+{% extends 'admin.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{% load static %}
+
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ user.username }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            My profile
+          </button>
+        </div>
+      </div>
+    <div class="row text-center">
+             <div class="col-md-3"></div>
+             <div class="col-md-6">
+
+                 {% for message in messages %}
+            <div class="container-fluid p-0">
+              <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert" >
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {{ message }}
+              </div>
+            </div>
+            {% endfor %}
+             </div>
+             <div class="col-md-3"></div>
+          </div>
+
+      <canvas class="my-4 w-100" id="myChart" width="900" height="200">
+      </canvas>
+    <div class="row">
+        <div class="col-md-6 text-center">
+            <h4>pending {{pending_no}}</h4>
+        </div>
+        <form class="col-md-6 text-center" method="post" action="approve_all">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-sm btn-danger" value="Approve all">
+        </form>
+
+        {% for p in pending %}
+        <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                {{p.product_name}} /serial: {{p.product_serial}}
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">ksh. {{p.total_price}} <br> quantity: {{p.quantity}}</h5>
+                <p class="card-text"><img src="{{p.image.url}}" width="20%" alt=""> <br>customer: {{p.customer_name}}</p>
+                <a href="approve/{{p.product_serial}}" class="btn btn-sm btn-primary">Approve</a>
+              </div>
+              <div class="card-footer text-muted">
+                  {{p.date}}
+              </div>
+            </div>
+            <br>
+          </div>
+        <br>
+        {% endfor %}
+    </div>
+    <br><br>
+    <hr>
+    <br>
+
+    <!--modal section-->
+
+     <!-- products modal-->
+    <div class="modal fade" id="product" tabindex="-1"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title ">Products</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+                <h3 class="text-center"><u>Add New Product</u></h3>
+                <br>
+                <form action="new_product" role="form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="form-group p col-md-3">
+                            <label>Product Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="Product name" required>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="form-group p col-md-3">
+                            <label>Product Price</label>
+                            <p>ksh. <input type="number" class="form-control" name="price" placeholder="Ksh. ?" required></p>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="form-group p col-md-3">
+                            <label>Product Category</label>
+                            <br>
+                            <select name="category" id="" required>
+                                <option value="">Select Category</option>
+                                {% for c in categories %}
+                                <option value="{{c.name}}">{{c.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="form-group p col-md-6">
+                            <label>Product Description</label>
+                            <br>
+                            <textarea class="form-control" name="description" placeholder="Product description" required></textarea>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="form-group p col-md-6">
+                            <label>Product Image</label>
+                            <input type="file" class="form-control" name="image" placeholder="Product image" required>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-3"></div>
+                        <div class="form-group p col-md-6 text-center">
+                            <button type="submit" class="btn btn-primary">Add Product</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+              <br>
+              <hr>
+              <br><br><br>
+              <h3 class="text-center"><u>All Products: {{products_no}}</u></h3>
+              <br>
+              <div class="container">
+                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                     {% for p in products %}
+                    <div class="col">
+                      <div class="card shadow-sm">
+                        <img src="{{p.image.url}}" alt="{{p.image.url}}" class="bd-placeholder-img card-img-top" width="100%" height="225" role="img"</img>
+
+                        <div class="card-body">
+                          <p class="card-text">{{p.description}}.</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+<!--                              <button type="button" class="btn btn-sm btn-outline-secondary">View</button>-->
+<!--                              <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>-->
+                            </div>
+                            <small class="text-muted">{{p.date}}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                     {% endfor %}
+                 </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--     end of products modal-->
+
+         <!-- categories modal-->
+    <div class="modal fade" id="categories" tabindex="-1"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Categories</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <br>
+              <div class="container">
+                  <h3>Add New Category</h3>
+                  <form action="/new_category" method="post" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <div class="form-group">
+                      <label>Category name</label>
+                      <input type="text" class="form-control" name="category" placeholder="Category" required>
+                      </div>
+                      <div class="form-group">
+                      <label>Category Image</label>
+                      <input type="file" class="form-control" name="image" placeholder="Category" required>
+                      </div>
+                      <br>
+                      <button type="submit" class="btn btn-primary">Add</button>
+                  </form>
+              </div>
+              <br>
+              <hr>
+              <h3>All available categories</h3>
+            <div class="container">
+                <ol>
+              {% for category in categories %}
+                <li>{{ category.name }}
+                    <img src="{{category.image.url}}" width="20%" alt="">
+                    <a href="delete_category/{{category.name}}" class="btn btn-sm btn-danger">Delete</a>
+                </li>
+                    <hr>
+                    <br>
+               {% endfor %}
+                </ol>
+          </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--     end of categories modal-->
+
+         <!-- messages modal-->
+    <div class="modal fade " id="messages" tabindex="-1"  data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-scrollable">
+        <div class="modal-content c-message">
+          <div class="modal-header">
+            <h3 class="modal-title">Contact Us</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+                <div class="row" >
+                    <br>
+<!--                    <form class="card col-md-4" action="send_message" method="post" role="form">-->
+<!--                                      <h4><b>Write Message</b></h4>-->
+
+<!--                        {% csrf_token %}-->
+<!--                      <div class="row mb-3">-->
+<!--                        <div class="col-sm-12 py-2 wow fadeInLeft form-group" >-->
+<!--                            <label>Name</label>-->
+<!--                          <input type="text" name="name" class="form-control" value="{{user.first_name}} {{user.last_name}}" readonly>-->
+<!--                            <div class="valid-feedback">Valid.</div>-->
+<!--                                <div class="invalid-feedback">Number Plate is required.</div>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                        <div class="row mb-3">-->
+<!--                          <div class="col-sm-12 py-2 wow fadeInLeft form-group" >-->
+<!--                              <label>email</label>-->
+<!--                            <input type="text" name="email" class="form-control" value="{{user.email}}" readonly>-->
+<!--                              <div class="valid-feedback">Valid.</div>-->
+<!--                              <div class="invalid-feedback">email is required.</div>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                        <div class="row mb-3">-->
+<!--                          <div class="col-sm-12 py-2 wow fadeInLeft form-group" >-->
+<!--                              <label>subject</label>-->
+<!--                              {% render_field contact_form.subject class="form-control"%}-->
+<!--                              <div class="valid-feedback">Valid.</div>-->
+<!--                              <div class="invalid-feedback">subject required.</div>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                      <div class="row mb-3">-->
+<!--                          <div class="col-sm-12 py-2 wow fadeInLeft form-group" >-->
+<!--                              <label>Message</label>-->
+<!--                              {% render_field contact_form.message class="form-control"%}-->
+<!--                              <div class="valid-feedback">Valid.</div>-->
+<!--                              <div class="invalid-feedback">message Number required.</div>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                       <div class="row text-center mb-3">-->
+<!--                          <div class="col-sm-12 py-2 wow fadeInLeft form-group">-->
+<!--                            <input type="submit" class="btn btn-primary" value="SEND">-->
+<!--                          </div>-->
+<!--                        </div>-->
+
+<!--                    </form>-->
+
+                    <div class="card col-md-10">
+                        <h4><b>All messages</b></h4>
+                        {%for m in contacts%}
+                        <div class="row message-item">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-4 m1">
+                                <div class="row">
+                                    <p> <b>From</b>  {{m.name}}</p>
+                                </div>
+                                <div class="row">
+                                    <em><b>{{m.email}}</b></em>
+                                </div>
+                            </div>
+                            <div class="col-md-7 m2">
+                                <small><u>subject: {{m.subject}}</u></small>
+                                <div class="padding row text-center">
+                                    {{m.message| truncatewords:25}}
+                                </div>
+                                <hr>
+                                <small><em>{{m.date}}</em></small>
+                            </div>
+                        </div>
+                        <hr>
+                        {%endfor%}
+                    </div>
+
+               </div>
+            </div>
+            <hr>
+            <br>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--     end of messages modal-->
+    <!--end modal section-->
+
+    </main>
+
+{%endblock %}

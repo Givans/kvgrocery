@@ -1,0 +1,453 @@
+ <!DOCTYPE html>
+  {%load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KV GROCERY</title>
+
+    <!-- font awesome cdn link  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
+        <!-- custom css file link  -->
+      <link href="{% static 'css/main.css' %}" rel="stylesheet" />
+
+</head>
+<body>
+
+<!-- header section starts  -->
+
+<header>
+
+    <div class="header-1">
+
+        <a href="#" class="logo"><i class="fas fa-shopping-basket"></i>KV Grocery</a>
+
+        <form action="" class="search-box-container">
+            <input type="search" id="search-box" placeholder="search here...">
+            <label for="search-box" class="fas fa-search"></label>
+        </form>
+
+    </div>
+
+    <div class="header-2">
+
+        <div id="menu-bar" class="fas fa-bars"></div>
+
+        <nav class="navbar">
+            {% if homepage %}
+            <a href="/">home</a>
+            <a href="#category">category</a>
+            <a href="#product">product</a>
+            {% else %}
+            <a href="/">Home page</a>
+            {% endif %}
+
+            <a href="#deal">deal</a>
+            <a href="" data-bs-toggle="modal" data-bs-target="#contactus">contact</a>
+        </nav>
+        {% if user.is_authenticated %}
+        <div class="icons">
+            <a href="" data-bs-toggle="modal" data-bs-target="#cart{{user.username}}" class="fas fa-shopping-cart btn btn-primary">cart ( {{cart_no}} )</a>
+<!--            <a href="#" class="fas fa-heart"></a>-->
+            <div class="btn-group">
+          <button type="button" class="btn btn-primary">{{user.first_name}}</button>
+          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/user/{{user.username}}">my account</a></li>
+            <li><a class="dropdown-item" href="#">Notifications</a></li>
+            <li><a class="dropdown-item fas fa-user-circle" href="/logout">logout</a></li>
+          </ul>
+        </div>
+        </div>
+        {% else %}
+        <div class="icons">
+            {% if user.is_authenticated %}
+            <a href="" data-bs-toggle="modal" data-bs-target="#cart{{user.username}}" class="fas fa-shopping-cart">cart</a>
+            {% else %}
+            <a href="" class="fas fa-shopping-cart" onclick="window.alert('Login First')">cart</a>
+            {% endif %}
+<!--            <a href="#" class="fas fa-heart"></a>-->
+            <a href="" data-bs-toggle="modal" data-bs-target="#login" class="fas fa-user-circle">Login</a>
+        </div>
+        {% endif %}
+
+
+    </div>
+
+</header>
+
+<!-- header section ends -->      <br><br>
+      <main>
+
+    {% block content %}
+
+    {%endblock %}
+        </main>
+      <!--modal section-->
+
+     <!--  login modal-->
+<div class="modal fade" id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+            <div class="container">
+        <div class="card text-center theme-1">
+        <h2>Log in Here</h2>
+        <p><b><i>Welcome to KV Grocery, Kindly login to access our services</i></b></p>
+      <form action="/login"  class="form text-center contact-form mt-5" method="post">
+            {% csrf_token %}
+          <div class="py-2 wow fadeInLeft form-group" >
+              <label>Phone number/Username</label>
+              <br>
+              <input type="text" name="phone" id="Phone Number" placeholder="Enter email" required>
+              <div class="valid-feedback">Valid.</div>
+              <div class="invalid-feedback">email required.</div>
+          </div>
+          <br>
+          <div class="py-2 wow fadeInLeft form-group" >
+              <label>Password</label>
+              <br>
+              <input type="password" name="password" id="password" placeholder="Enter Password" required>
+              <div class="valid-feedback">Valid.</div>
+              <div class="invalid-feedback">your password is required.</div>
+          </div>
+          <div class="text-center">
+              <button type="submit" class="btn btn-sm btn-primary" name="login">Login</button>
+          </div>
+       </form>
+            <br>
+            <a href="" class="forgot">forgot password</a>
+        <br>
+        <b>Don't have an account? <a href="" data-bs-toggle="modal" data-bs-target="#signup" class="btn btn-danger">create account</a></b>
+    </div>
+    </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--     end login modal-->
+
+     <!--  signup modal-->
+<div class="modal fade" id="signup" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sign Up</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+
+            <p>You can delete the account whenever you want</p>
+              <form action="/signup" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Names</button>
+                      </div>
+                    <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>First Name</label>
+                        <input type="text" name="firstname" class="form-control" placeholder="first name" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid first name as per id is required.</div>
+                    </div>
+                    <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>Other Names</label>
+                        <input type="text" name="lastname" class="form-control" placeholder="Other names" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Your sir name is required.</div>
+                    </div>
+
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Unique</button>
+                      </div>
+                      <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>email</label>
+                        <input type="email" name="email" class="form-control" placeholder="your email" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">A valid email is required.</div>
+                    </div>
+                    <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>Phone </label>
+                        <input type="text" maxlength="10" name="phone" class="form-control" placeholder="phone number" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid ad unique username is required.</div>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Shipping</button>
+                      </div>
+                    <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                        <label>address</label>
+                        <input type="text" name="location" class="form-control" placeholder="your location">
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">This Location is required.</div>
+                    </div>
+                      <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                        <label>Id number</label>
+                        <input type="text" name="idnumber" class="form-control" placeholder="ID Number">
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">This ID is required.</div>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Other info</button>
+                      </div>
+                    <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                        <label>Gender</label>
+                        <div class="row">
+                            <div class="col-md-3">
+                                male
+                                <br>
+                                <input type="radio" value="male" name="gender" required>
+                            </div>
+                            <div class="col-md-3">
+                                female
+                                <br>
+                                <input type="radio" value="female" name="gender" required>
+                            </div>
+                            <div class="col-md-3">
+                                transgender
+                                <br>
+                                <input type="radio" value="Transgender" name="gender" required>
+                            </div>
+                            <div class="col-md-3"></div>
+                        </div>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">The gender is required.</div>
+                    </div>
+                      <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                          <label>Profile Pic</label>
+                        <input type="file" name="pic" class="form-control" id="" placeholder="profile picture">
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid Profile Picture is required.</div>
+                      </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Authenticate</button>
+                      </div>
+                      <div class="col-sm-5 py-2 wow fadeInLeft form-group" >
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="password" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid Password is required.</div>
+                    </div>
+                      <div class="col-sm-5 py-2 wow fadeInLeft form-group" >
+                        <label>Confirm Password</label>
+                          <input type="password" class="form-control" name="password2" placeholder="Repeat password" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">The passwords must be the same.</div>
+                    </div>
+
+                  </div>
+                <div class="form-group text-center">
+                <input type="submit" value="Register Now" name="submit" class="btn btn-sm btn-primary">
+                </div>
+              </form>
+
+        </div>
+      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!--     end signup modal-->
+     <!--  contact modal-->
+<div class="modal fade" id="contactus" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Send Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container contact">
+          <form action="/contact_us" method="POST">
+              {% csrf_token %}
+            <div class="form-group">
+            <input class="form-control" type="text" name="name" readonly value="{{user.first_name}} {{user.last_name}}" id="username" placeholder="..." required>
+            <label for="username">Name</label>
+            </div>
+            <hr>
+            <div class="form-group">
+            <input class="form-control" type="email" name="email" readonly value="{{user.email}}" id="email" required placeholder="example@site.com">
+            <label for="email">Email</label>
+            </div>
+            <hr>
+              <div class="form-group">
+            <input class="form-control" type="text" name="subject" id="subject" required placeholder="...">
+            <label for="Subject">Subject</label>
+            </div>
+            <hr>
+            <div class="form-group">
+              <textarea id="textarea1" class="form-control" name="message" data-length="1000" placeholder="Typing..." required></textarea>
+              <label for="textarea1">Message</label>
+            </div>
+            <div class="form-group text-center">
+            <input type="submit" value="Send" name="submit" class="btn btn-sm btn-primary">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--     end contact modal-->
+         <!-- about modal-->
+<div class="modal fade" id="about" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">About US</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <div class="col-sm-12 col-md-10 py-4">
+                <p class="text-black"> We provide rooms for our customers and room services. We are located at Kwavonza
+                  town along the Nairobi-Kitui Road, 15km from Kitui town. We value our customers, their privacy and
+                  security.
+                </p>
+              </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--     end of about modal sent-->
+
+         <!-- about modal-->
+<div class="modal fade" id="cart{{user.username}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"  data-bs-backdrop="static" >
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">My cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="container" action="/checkout/{{user.username}}" method="post">
+            {% csrf_token %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for c in cart %}
+                <div class="col-md-6">
+                    <div class="card">
+                      <div class="row g-0">
+                          <input type="hidden" name="image" value="{{c.image.url}}">
+                        <div class="col-md-4">
+                            <img src="{{c.image.url}}"  class="bd-placeholder-img" width="100%" alt="{{c.image}}">
+                        </div>
+                        <div class="col-md-8">
+                          <div class="card-body">
+                              <input type="hidden" name="product_name" value="{{c.product_name}}">
+                            <h5 class="card-title">{{c.product_name}}</h5>
+                            <p class="card-text"> {{c.description}}</p>
+                              <input type="hidden" name="quantity" value="{{c.quantity}}">
+                              <p class="card-text">Quantity{{c.quantity}} => Ksh.{{c.total_price}}</p>
+                            <p class="card-text"><small class="text-muted">{{c.date}}</small></p>
+                          </div>
+                            <a href="/delete_cart/{{c.product_serial}}" class="btn-lg btn-danger">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+             </div>
+            <br>
+            <div class="row text-center" >
+                <div class="col-md-3"></div>
+                <div class="col-md-4">
+                    <p>Total amount: <em>Ksh{{total}}</em></p>
+                    <input type="hidden" name="total" value="{{total}}" name="price">
+                    <button type="submit" class="btn btn-lg btn-primary">Check out</button>
+                </div>
+            </div>
+        </form>
+
+      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-lg btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!--     end of about modal sent-->
+
+      <!-- footer section starts  -->
+
+<section class="footer">
+
+    <div class="box-container">
+
+        <div class="box">
+            <a href="#" class="logo"><i class="fas fa-shopping-basket"></i>KV Grocery</a>
+            <p>We provide best services at Kwavonza and areas around Kwavonza at affordable price with free Delivery services for customers in kwavonza</p>
+            <div class="share">
+                <a href="#" class="btn fab fa-facebook-f"></a>
+                <a href="#" class="btn fab fa-twitter"></a>
+                <a href="#" class="btn fab fa-instagram"></a>
+                <a href="#" class="btn fab fa-linkedin"></a>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>our location</h3>
+            <div class="links">
+                <a href="#">Kwavonza</a>
+                <a href="#">Kitui</a>
+                <a href="#">Kwamweni</a>
+                <a href="#">Diaspora</a>
+                <a href="#">SEKU</a>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>quick links</h3>
+            <div class="links">
+                <a href="/">home</a>
+                <a href="#category">category</a>
+                <a href="#product">product</a>
+                <a href="#deal">deal</a>
+                <a href="#contact">contact</a>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>download app</h3>
+            <div class="links">
+                <a href="#">google play</a>
+                <a href="#">window xp</a>
+                <a href="#">app store</a>
+            </div>
+        </div>
+
+    </div>
+
+    <h1 class="credit"> created by <span> kv grocery stores </span> | all rights reserved! </h1>
+
+</section>
+
+<!-- footer section ends -->
+
+
+
+      <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+      <script src="{% static 'js/bootstrap.bundle.min.js' %}" ></script>
+      <script src="{% static 'js/main.js' %}"></script>
+    </body>
+  </html>

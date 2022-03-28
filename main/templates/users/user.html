@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{%load static %}
+{%block content%}
+<!--messages-->
+<div class="row text-center">
+             <div class="col-md-3"></div>
+             <div class="col-md-6">
+
+                 {% for message in messages %}
+            <div class="container-fluid p-0">
+              <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert" >
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {{ message }}
+              </div>
+            </div>
+            {% endfor %}
+             </div>
+             <div class="col-md-3"></div>
+          </div>
+<!--end messages-->
+<!-- home section starts  -->
+
+<section class="home" id="home">
+
+    <div class="">
+        <img class="profile-img" src="/images/{{profile}}" alt="{{profile}}" width="50%">
+    </div>
+
+    <div class="content">
+        <h3>Personal Information</h3>
+        <span><b>Name: </b>{{user.first_name}} {{user.last_name}}</span><br>
+        <span><b>email: </b>{{user.email}}</span><br>
+        <span><b>Phone: </b>{{user.username}}</span><br>
+        <span><b>shipping address: </b>{{shipping}}</span><br>
+    </div>
+    <a href="" data-bs-toggle="modal" data-bs-target="#edit{{user.username}}" class="btn btn-lg btn-danger">Edit profile</a>
+</section>
+
+<br><br>
+<hr><br><br>
+<!-- home section ends -->
+
+<!-- banner section starts  -->
+
+<section class="items">
+    <div class="row text-center">
+        <nav>
+          <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Deposit/Withdraw</button>
+            <button class="nav-link" id="nav-pending-tab" data-bs-toggle="tab" data-bs-target="#nav-pending" type="button" role="tab" aria-controls="nav-home" aria-selected="true">pending { {{pending_no}} }</button>
+            <button class="nav-link" id="nav-transit-tab" data-bs-toggle="tab" data-bs-target="#nav-transit" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">In-transit{ {{transit_no}} }</button>
+            <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-received" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Received{ {{received_no}} }</button>
+          </div>
+        </nav>
+        <canvas height="10%"></canvas>
+        <div class="tab-content" id="nav-tabContent">
+<!--            balance section-->
+
+
+          <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+              <div class="card">
+                  <p>Account Balance <b>ksh. {{balance}}</b></p><br>
+                  <p><span><a href="" class="btn-lg btn-primary" data-bs-toggle="modal" data-bs-target="#deposit">Deposit</a> <a href="" class="btn-lg btn-danger" data-bs-toggle="modal" data-bs-target="#withdraw">Withdraw</a></span></p>
+                  <br><br>
+                  <h1 class="display-3"><u>All transaction records</u></h1>
+              </div>
+
+          </div>
+<!--            end balance section-->
+          <div class="tab-pane fade" id="nav-pending" role="tabpanel" aria-labelledby="nav-profile-tab">
+              <div class="category">
+                  <h3>Payed for but not yet out for delivery</h3>
+                <div class="box-container">
+                    {% for p in pending %}
+                     <div class="box">
+                         <h3>{{p.product_name}}</h3>
+                        <p>ksh. {{p.total_price}}</p>
+                        <p>{{p.quantity}}</p>
+                         <small>{{p.date}}</small>
+                        <img src="{{p.image.url}}" alt="">
+                    </div>
+                    {%endfor%}
+
+                </div>
+              </div>
+          </div>
+          <div class="tab-pane fade" id="nav-transit" role="tabpanel" aria-labelledby="nav-contact-tab">
+                <div class="category">
+                  <h3>Payed for but <b>AND</b> is out for delivery</h3>
+                <div class="box-container">
+                    {% for t in transit %}
+                     <div class="box">
+                         <h3>{{t.product_name}}</h3>
+                        <p>ksh. {{t.total_price}}</p>
+                        <p>Quantity: {{t.quantity}}</p>
+                        <img src="{{t.image.url}}" alt="">
+                         <small>{{t.date}}</small>
+                         <form action="confirm_received/{{t.product_serial}}" method="post">
+                             {%csrf_token%}
+                             <input type="submit" class="btn btn-sm btn-outline-success" value="confirm received">
+                         </form>
+                    </div>
+                    {%endfor%}
+
+                </div>
+              </div>
+          </div>
+            <div class="tab-pane fade" id="nav-received" role="tabpanel" aria-labelledby="nav-contact-tab">
+                <div class="category">
+                  <h3>Received Products</h3>
+                <div class="box-container">
+                    {% for r in received %}
+                     <div class="box">
+                         <h3>{{r.product_name}}</h3>
+                        <p>ksh. {{r.total_price}}</p>
+                        <p>quantity: {{r.quantity}}</p>
+                        <img src="{{r.image.url}}" alt="">
+                         <small>{{r.date}}</small>
+                         <a href="" class="btn btn-sm btn-outline-success">Review</a>
+                    </div>
+                    {%endfor%}
+
+                </div>
+              </div>
+          </div>
+        </div>
+        </div>
+
+</section>
+
+<br><br><br>
+<hr><br><br><br>
+
+<!-- banner section ends -->
+
+<!-- product section starts  -->
+
+<section class="product" id="product">
+
+    <h1 class="heading"><a href="/customer">shop <span>more</span></a></h1>
+
+</section>
+
+<!-- product section ends -->
+
+<!-- contact section starts  -->
+
+<section class="contact" id="contact">
+
+    <h1 class="heading"> <span>contact</span> us </h1>
+    <form action="/contact_us" method="POST">
+              {% csrf_token %}
+            <div class="inputBox">
+                <input type="text" name="name" value="{{user.first_name}} {{user.last_name}}" readonly placeholder="name" required>
+                <input type="email" placeholder="email" value="{{user.email}}" readonly name="email" required>
+                <input type="text"  name="subject" placeholder="subject" required>
+            </div>
+            <hr>
+            <div class="form-group">
+              <textarea id="textarea1" class="form-control" name="message" data-length="1000" placeholder="Typing..." required></textarea>
+              <label for="textarea1">Message</label>
+            </div>
+            <div class="form-group text-center">
+            <input type="submit" value="Send Message" name="submit" class="btn btn-sm btn-primary">
+            </div>
+          </form>
+
+
+
+</section>
+
+<!-- contact section ends -->
+
+<!-- newsletter section starts  -->
+
+<section class="newsletter">
+
+    <h3>subscribe us for latest updates</h3>
+
+    <form action="">
+        <input class="box" type="email" placeholder="enter your email">
+        <input type="submit" value="subscribe" class="btn">
+    </form>
+
+</section>
+
+<!-- newsletter section ends -->
+    <!--modal section-->
+<!-- Modal contact-->
+<div class="modal fade" id="deposit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Deposit to your wallet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container text-center">
+            <p>Current balance: ksh {{balance}}</p>
+            <br><br>
+            <form action="/deposit/{{user.username}}" method="post">
+                {% csrf_token %}
+                <label> Amount</label>
+                <div class="input">
+                    <p>
+                        Ksh. <input type="number" name="amount" id="amount" placeholder="amount">
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-success">Deposit</button>
+            </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <em>Thank you for shopping with us</em>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="withdraw" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Withdraw to {{user.username}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="container text-center">
+            <p>Current balance: ksh {{balance}}</p>
+            <br><br>
+            <form action="/withdraw/{{user.username}}" method="post">
+                {% csrf_token %}
+                <label> Amount</label>
+                <div class="input">
+                    <p>
+                        Ksh. <input type="number" name="amount" placeholder="amount">
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-success">Withdraw</button>
+            </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <em>Thank you for shopping with us</em>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="edit{{user.username}}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit your profile {{user.first_name}} {{user.last_name}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+
+              <form action="edit_profile/{{user.username}}" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Names</button>
+                      </div>
+                    <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>First Name</label>
+                        <input type="text" disabled name="firstname" class="form-control" value="{{user.first_name}}" placeholder="first name" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid first name as per id is required.</div>
+                    </div>
+                    <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>Other Names</label>
+                        <input type="text" disabled value="{{user.last_name}}" name="lastname" class="form-control" placeholder="Other names" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Your sir name is required.</div>
+                    </div>
+
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Unique</button>
+                      </div>
+                      <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>email</label>
+                        <input type="email" value="{{user.email}}" disabled name="email" class="form-control" placeholder="your email" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">A valid email is required.</div>
+                    </div>
+                    <div class="col-sm-4 py-2 wow fadeInLeft form-group" >
+                        <label>Phone </label>
+                        <input type="text" value="{{user.username}}" maxlength="10" name="phone" class="form-control" placeholder="phone number" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid ad unique username is required.</div>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Shipping</button>
+                      </div>
+                    <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                        <label>address</label>
+                        <input type="text" value="{{shipping}}" name="location" class="form-control" placeholder="your location">
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">This Location is required.</div>
+                    </div>
+                      <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                        <label>Id number</label>
+                        <input type="text" disabled value="{{id_number}}" name="idnumber" class="form-control" placeholder="ID Number">
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">This ID is required.</div>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Other info</button>
+                      </div>
+                      <div class="col-sm-3 py-2 wow fadeInLeft form-group" >
+                          <label>Profile Pic</label>
+                        <input type="file" name="pic" class="form-control" id="" placeholder="profile picture">
+                          <img class="profile-img" src="/images/{{profile}}" width="30%" alt="">
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid Profile Picture is required.</div>
+                      </div>
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-sm-2">
+                          <button class="btn btn-secondary">Authenticate</button>
+                      </div>
+                      <div class="col-sm-5 py-2 wow fadeInLeft form-group" >
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="password" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">Valid Password is required.</div>
+                    </div>
+                      <div class="col-sm-5 py-2 wow fadeInLeft form-group" >
+                        <label>Confirm Password</label>
+                          <input type="password" class="form-control" name="password2" placeholder="Repeat password" required>
+                        <div class="valid-feedback">Valid.</div>
+                        <div class="invalid-feedback">The passwords must be the same.</div>
+                    </div>
+
+                  </div>
+                <div class="form-group text-center">
+                <input type="submit" value="Update Profile" name="submit" class="btn btn-sm btn-primary">
+                </div>
+              </form>
+
+        </div>
+      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!--     end of nodal sent-->
+
+{% endblock %}
